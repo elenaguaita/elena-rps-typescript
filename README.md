@@ -1,2 +1,2 @@
-# elena-rps-typescript
-Backend TS training
+# Rock Paper Scissors
+Backend TS Training & Evaluation
