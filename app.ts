@@ -1,3 +1,4 @@
 import { play } from "./rps";
+import { stdin as input, stdout as output } from "node:process";
 
-play("Wanna play? Let's play!\n0 for Rock, 1 for Paper, 2 for Scissors: ");
+play(input, output);
