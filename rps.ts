@@ -6,13 +6,11 @@ import { Move, read } from "./types/move";
 const rl = createInterface({ input, output });
 
 const calculateResult = (userMove: Move, computerMove: Move) =>
-  match([userMove, computerMove])
+  match<[Move, Move]>([userMove, computerMove])
     .with(["0", "2"], ["1", "0"], ["2", "1"], () => rl.write("You win!"))
-    .with(
-      P.when(([u, c]) => u === c),
-      () => rl.write("It's a draw.")
-    )
-    .otherwise(() => rl.write("You lose..."));
+    .with(["2", "0"], ["0", "1"], ["1", "2"], () => rl.write("You lose..."))
+    .with(["2", "2"], ["0", "0"], ["1", "1"], () => rl.write("It's a draw."))
+    .exhaustive();
 
 export async function play(question: string) {
   const userInput = (await rl.question(question)).trim();
