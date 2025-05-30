@@ -13,19 +13,19 @@ export function calculateResult(userMove: Move, computerMove: Move): string {
       ["Rock", "Scissors"],
       ["Paper", "Rock"],
       ["Scissors", "Paper"],
-      () => "You win!"
+      () => "You win!",
     )
     .with(
       ["Scissors", "Rock"],
       ["Rock", "Paper"],
       ["Paper", "Scissors"],
-      () => "You lose..."
+      () => "You lose...",
     )
     .with(
       ["Scissors", "Scissors"],
       ["Rock", "Rock"],
       ["Paper", "Paper"],
-      () => "It's a draw."
+      () => "It's a draw.",
     )
     .exhaustive();
 }
@@ -33,13 +33,13 @@ export function calculateResult(userMove: Move, computerMove: Move): string {
 // incapsulate input/output handling
 export async function play(
   input: NodeJS.ReadableStream,
-  output: NodeJS.WritableStream
+  output: NodeJS.WritableStream,
 ) {
   const rl = createInterface({ input, output });
 
   const userInput = (
     await rl.question(
-      "Wanna play? Let's play!\n0 for Rock, 1 for Paper, 2 for Scissors: "
+      "Wanna play? Let's play!\n0 for Rock, 1 for Paper, 2 for Scissors: ",
     )
   ).trim();
   const userMove = read(userInput);

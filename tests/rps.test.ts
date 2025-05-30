@@ -3,7 +3,7 @@ import { calculateResult, generateRandomMove } from "../rps";
 import { Move, read } from "../types/move";
 
 describe("read", () => {
-  test.each([
+  test.each<[string, Move]>([
     ["0", "Rock"],
     ["1", "Paper"],
     ["2", "Scissors"],
@@ -36,7 +36,7 @@ describe("generateRandomMove", () => {
     vi.restoreAllMocks();
   });
 
-  test.each([
+  test.each<[number, Move]>([
     [0.0, "Rock"],
     [0.4, "Paper"],
     [0.8, "Scissors"],
@@ -45,12 +45,12 @@ describe("generateRandomMove", () => {
     (randomOutput, expected) => {
       vi.spyOn(Math, "random").mockReturnValue(randomOutput);
       expect(generateRandomMove()).toBe(expected);
-    }
+    },
   );
 });
 
 describe("calculateResult", () => {
-  test.each([
+  test.each<[Move, Move, string]>([
     ["Rock", "Scissors", "You win!"],
     ["Paper", "Rock", "You win!"],
     ["Scissors", "Paper", "You win!"],
@@ -62,10 +62,8 @@ describe("calculateResult", () => {
     ["Scissors", "Scissors", "It's a draw."],
   ])(
     'if user plays %s and computer plays %s, should return "%s"',
-    (userMove, computerMove, expected: string) => {
-      expect(calculateResult(userMove as Move, computerMove as Move)).toBe(
-        expected
-      );
-    }
+    (userMove, computerMove, expected) => {
+      expect(calculateResult(userMove, computerMove)).toBe(expected);
+    },
   );
 });
