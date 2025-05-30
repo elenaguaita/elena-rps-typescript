@@ -1,6 +1,10 @@
 import { match } from "ts-pattern";
+import { z } from "zod";
 
-export type Move = "Rock" | "Paper" | "Scissors";
+export const MoveEnum = z.enum(["Rock", "Paper", "Scissors"]);
+export type Move = z.infer<typeof MoveEnum>;
+
+export const move = MoveEnum;
 
 export function read(input: string): Move | null {
   return match(input)

@@ -1,31 +1,42 @@
 import { createInterface } from "node:readline/promises";
 import { match, P } from "ts-pattern";
-import { Move, read } from "./types/move";
+import { move, Move, read } from "./types/move";
+import { Result, result } from "./types/result";
 
 export function generateRandomMove(): Move {
   const moves: Move[] = ["Rock", "Paper", "Scissors"];
   return moves[Math.floor(Math.random() * 3)];
 }
 
-export function calculateResult(userMove: Move, computerMove: Move): string {
+export function calculateResult(userMove: Move, computerMove: Move): Result {
   return match<[Move, Move]>([userMove, computerMove])
+    .returnType<Result>()
     .with(
       ["Rock", "Scissors"],
       ["Paper", "Rock"],
       ["Scissors", "Paper"],
-      () => "You win!",
+      () => ({
+        kind: "positive",
+        date: new Date(),
+      }),
     )
     .with(
       ["Scissors", "Rock"],
       ["Rock", "Paper"],
       ["Paper", "Scissors"],
-      () => "You lose...",
+      () => ({
+        kind: "negative",
+        date: new Date(),
+      }),
     )
     .with(
       ["Scissors", "Scissors"],
       ["Rock", "Rock"],
       ["Paper", "Paper"],
-      () => "It's a draw.",
+      () => ({
+        kind: "neutral",
+        date: new Date(),
+      }),
     )
     .exhaustive();
 }
@@ -42,13 +53,24 @@ export async function play(
       "Wanna play? Let's play!\n0 for Rock, 1 for Paper, 2 for Scissors: ",
     )
   ).trim();
-  const userMove = read(userInput);
-  if (!userMove) {
-    rl.write("That's not a valid move.");
+  const userMove = move.safeParse(read(userInput));
+  if (!userMove.success) {
+    rl.write("That's not a valid move.\n");
+    userMove.error.issues.forEach((issue) => rl.write(`[${issue.message}]`));
     return;
   }
   const computerMove = generateRandomMove();
 
-  rl.write(`You played: ${userMove}\nComputer played: ${computerMove}\n`);
-  rl.write(calculateResult(userMove, computerMove));
+  rl.write(`You played: ${userMove.data}\nComputer played: ${computerMove}\n`);
+
+  const gameResult = result.safeParse(
+    calculateResult(userMove.data, computerMove),
+  );
+  if (!gameResult.success) {
+    gameResult.error.issues.map((issue) => rl.write(`${issue.message}\n`));
+  } else {
+    rl.write(
+      `The result is... ${gameResult.data.kind === "positive" ? "You win!" : gameResult.data.kind === "neutral" ? "It's a draw" : "You lose..."}`,
+    );
+  }
 }

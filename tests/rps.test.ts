@@ -1,6 +1,7 @@
 import { describe, it, expect, test, afterEach, vi } from "vitest";
 import { calculateResult, generateRandomMove } from "../rps";
 import { Move, read } from "../types/move";
+import { Result, ResultKind, ResultKindEnum } from "../types/result";
 
 describe("read", () => {
   test.each<[string, Move]>([
@@ -50,20 +51,22 @@ describe("generateRandomMove", () => {
 });
 
 describe("calculateResult", () => {
-  test.each<[Move, Move, string]>([
-    ["Rock", "Scissors", "You win!"],
-    ["Paper", "Rock", "You win!"],
-    ["Scissors", "Paper", "You win!"],
-    ["Scissors", "Rock", "You lose..."],
-    ["Rock", "Paper", "You lose..."],
-    ["Paper", "Scissors", "You lose..."],
-    ["Rock", "Rock", "It's a draw."],
-    ["Paper", "Paper", "It's a draw."],
-    ["Scissors", "Scissors", "It's a draw."],
+  test.each<[Move, Move, ResultKind]>([
+    ["Rock", "Scissors", "positive"],
+    ["Paper", "Rock", "positive"],
+    ["Scissors", "Paper", "positive"],
+    ["Scissors", "Rock", "negative"],
+    ["Rock", "Paper", "negative"],
+    ["Paper", "Scissors", "negative"],
+    ["Rock", "Rock", "neutral"],
+    ["Paper", "Paper", "neutral"],
+    ["Scissors", "Scissors", "neutral"],
   ])(
     'if user plays %s and computer plays %s, should return "%s"',
     (userMove, computerMove, expected) => {
-      expect(calculateResult(userMove, computerMove)).toBe(expected);
+      const result = calculateResult(userMove, computerMove);
+      expect(result.kind).toBe(expected);
+      expect(result.date).toBeInstanceOf(Date);
     },
   );
 });
