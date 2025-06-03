@@ -20,9 +20,9 @@ enum Move {
 }
 
 enum ResultKind {
-  positive
-  negative
-  neutral
+  youWin
+  youLose
+  draw
 }
 
 model User {
