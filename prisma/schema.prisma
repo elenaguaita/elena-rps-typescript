@@ -37,6 +37,6 @@ model Game {
   playerMove   Move?
   computerMove Move?
   result       ResultKind?
-  playerId     String     @db.Uuid
-  player       User       @relation(fields: [playerId], references: [id])
+  playerId     String?     @db.Uuid
+  player       User?       @relation(fields: [playerId], references: [id])
 }
