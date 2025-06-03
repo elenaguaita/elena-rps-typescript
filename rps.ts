@@ -70,7 +70,13 @@ export async function play(
     gameResult.error.issues.map((issue) => rl.write(`${issue.message}\n`));
   } else {
     rl.write(
-      `The result is... ${gameResult.data.kind === "positive" ? "You win!" : gameResult.data.kind === "neutral" ? "It's a draw" : "You lose..."}`,
+      "The result is... " +
+        match(gameResult.data.kind)
+          .returnType<string>()
+          .with("positive", () => "You win!")
+          .with("neutral", () => "It's a draw")
+          .with("negative", () => "You lose...")
+          .exhaustive(),
     );
   }
 }
