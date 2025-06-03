@@ -1,40 +1,40 @@
 import { createInterface } from "node:readline/promises";
-import { match, P } from "ts-pattern";
-import { move, Move, read } from "./types/move";
-import { Result, result } from "./types/result";
+import { match } from "ts-pattern";
+import { moves, Move } from "./types/move";
+import { Result, resultKinds } from "./types/result";
 
 export function generateRandomMove(): Move {
-  const moves: Move[] = ["Rock", "Paper", "Scissors"];
-  return moves[Math.floor(Math.random() * 3)];
+  const moveValues = Object.values(moves);
+  return moveValues[Math.floor(Math.random() * moveValues.length)];
 }
 
 export function calculateResult(userMove: Move, computerMove: Move): Result {
   return match<[Move, Move]>([userMove, computerMove])
     .returnType<Result>()
     .with(
-      ["Rock", "Scissors"],
-      ["Paper", "Rock"],
-      ["Scissors", "Paper"],
+      [moves.rock, moves.scissors],
+      [moves.paper, moves.rock],
+      [moves.scissors, moves.paper],
       () => ({
-        kind: "positive",
+        kind: resultKinds.youWin,
         date: new Date(),
       }),
     )
     .with(
-      ["Scissors", "Rock"],
-      ["Rock", "Paper"],
-      ["Paper", "Scissors"],
+      [moves.scissors, moves.rock],
+      [moves.rock, moves.paper],
+      [moves.paper, moves.scissors],
       () => ({
-        kind: "negative",
+        kind: resultKinds.youLose,
         date: new Date(),
       }),
     )
     .with(
-      ["Scissors", "Scissors"],
-      ["Rock", "Rock"],
-      ["Paper", "Paper"],
+      [moves.scissors, moves.scissors],
+      [moves.rock, moves.rock],
+      [moves.paper, moves.paper],
       () => ({
-        kind: "neutral",
+        kind: resultKinds.draw,
         date: new Date(),
       }),
     )
@@ -50,10 +50,10 @@ export async function play(
 
   const userInput = (
     await rl.question(
-      "Wanna play? Let's play!\n0 for Rock, 1 for Paper, 2 for Scissors: ",
+      "Wanna play? Let's play!\n0 for rock, 1 for paper, 2 for scissors: ",
     )
   ).trim();
-  const userMove = move.safeParse(read(userInput));
+  const userMove = Move.safeParse(userInput);
   if (!userMove.success) {
     rl.write("That's not a valid move.\n");
     userMove.error.issues.forEach((issue) => rl.write(`[${issue.message}]`));
@@ -63,20 +63,15 @@ export async function play(
 
   rl.write(`You played: ${userMove.data}\nComputer played: ${computerMove}\n`);
 
-  const gameResult = result.safeParse(
-    calculateResult(userMove.data, computerMove),
+  const gameResult = calculateResult(userMove.data, computerMove);
+
+  rl.write(
+    "The result is... " +
+      match(gameResult.kind)
+        .returnType<string>()
+        .with(resultKinds.youWin, () => "You win!")
+        .with(resultKinds.draw, () => "It's a draw")
+        .with(resultKinds.youLose, () => "You lose...")
+        .exhaustive(),
   );
-  if (!gameResult.success) {
-    gameResult.error.issues.map((issue) => rl.write(`${issue.message}\n`));
-  } else {
-    rl.write(
-      "The result is... " +
-        match(gameResult.data.kind)
-          .returnType<string>()
-          .with("positive", () => "You win!")
-          .with("neutral", () => "It's a draw")
-          .with("negative", () => "You lose...")
-          .exhaustive(),
-    );
-  }
 }

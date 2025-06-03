@@ -1,11 +1,21 @@
 import { z } from "zod";
 
-export const ResultKindEnum = z.enum(["positive", "negative", "neutral"]);
-export type ResultKind = z.infer<typeof ResultKindEnum>;
+export const resultKinds = {
+  youWin: "youWin",
+  youLose: "youLose",
+  draw: "draw",
+} as const;
 
-export const result = z.object({
-  kind: ResultKindEnum,
+export const ResultKind = z.enum([
+  resultKinds.youWin,
+  resultKinds.youLose,
+  resultKinds.draw,
+]);
+export type ResultKind = z.infer<typeof ResultKind>;
+
+export const Result = z.object({
+  kind: ResultKind,
   date: z.coerce.date(),
 });
 
-export type Result = z.infer<typeof result>;
+export type Result = z.infer<typeof Result>;
