@@ -4,10 +4,13 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  relationMode = "prisma"
 }
 
 enum Move {
@@ -23,17 +26,17 @@ enum ResultKind {
 }
 
 model User {
-  id        String   @id @default(uuid()) @db.Uuid
-  games    Game[]
+  id    String  @id @default(uuid()) @db.Uuid
+  games Game[]
 }
 
 model Game {
-  id        String   @id @default(uuid()) @db.Uuid
-  date    DateTime @default(now())
-  open    Boolean   @default(false)
-  playerMove Move?
+  id           String     @id @default(uuid()) @db.Uuid
+  date         DateTime   @default(now())
+  open         Boolean    @default(false)
+  playerMove   Move?
   computerMove Move?
-  result  ResultKind?
-  playerId    String   @db.Uuid
-  player  User      @relation(fields: [playerId], references: [id])
+  result       ResultKind?
+  playerId     String     @db.Uuid
+  player       User       @relation(fields: [playerId], references: [id])
 }
