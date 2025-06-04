@@ -65,9 +65,7 @@ describe("calculateResult", () => {
   ])(
     'if user plays %s and computer plays %s, should return "%s"',
     (userMove, computerMove, expected) => {
-      const result = calculateResult(userMove, computerMove);
-      expect(result).toBe(expected);
-      expect(result).toBeInstanceOf(Date);
+      expect(calculateResult(userMove, computerMove)).toBe(expected);
     },
   );
 });

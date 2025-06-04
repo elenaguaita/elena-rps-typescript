@@ -7,7 +7,7 @@
     "vitest": "^3.1.4"
   },
   "scripts": {
-    "build": "pnpm exec tsc",
+    "build": "pnpm exec tsc && cp -r generated dist/generated && cp .env dist/.env",
     "start": "node dist/app.js",
     "format": "prettier --write .",
     "test": "vitest"

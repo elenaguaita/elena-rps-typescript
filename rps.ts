@@ -2,8 +2,8 @@ import { createInterface } from "node:readline/promises";
 import { match } from "ts-pattern";
 import { moves, Move } from "./types/move";
 import { Result, results } from "./types/result";
-import { PrismaClient } from "@prisma/client";
 import { Game } from "./types/game";
+import { PrismaClient } from "./generated/client";
 
 const prisma = new PrismaClient();
 
