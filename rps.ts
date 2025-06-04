@@ -1,8 +1,9 @@
 import { createInterface } from "node:readline/promises";
 import { match } from "ts-pattern";
 import { moves, Move } from "./types/move";
-import { Result, resultKinds } from "./types/result";
+import { Result, results } from "./types/result";
 import { PrismaClient } from "@prisma/client";
+import { Game } from "./types/game";
 
 const prisma = new PrismaClient();
 
@@ -18,28 +19,19 @@ export function calculateResult(userMove: Move, computerMove: Move): Result {
       [moves.rock, moves.scissors],
       [moves.paper, moves.rock],
       [moves.scissors, moves.paper],
-      () => ({
-        kind: resultKinds.youWin,
-        date: new Date(),
-      }),
+      () => results.youWin,
     )
     .with(
       [moves.scissors, moves.rock],
       [moves.rock, moves.paper],
       [moves.paper, moves.scissors],
-      () => ({
-        kind: resultKinds.youLose,
-        date: new Date(),
-      }),
+      () => results.youLose,
     )
     .with(
       [moves.scissors, moves.scissors],
       [moves.rock, moves.rock],
       [moves.paper, moves.paper],
-      () => ({
-        kind: resultKinds.draw,
-        date: new Date(),
-      }),
+      () => results.draw,
     )
     .exhaustive();
 }
@@ -51,18 +43,21 @@ export async function play(
 ) {
   const rl = createInterface({ input, output });
 
-  const lastGame = await prisma.game.findFirst({
-    where: {
-      open: false,
-    },
-    orderBy: {
-      date: "desc",
-    },
-  });
+  const lastGame = Game.safeParse(
+    await prisma.game.findFirst({
+      where: {
+        open: false,
+      },
+      orderBy: {
+        date: "desc",
+      },
+    }),
+  );
   // print the last closed game, if exists
-  if (lastGame) {
+  if (lastGame.success) {
+    const data = lastGame.data;
     console.log(
-      `Let's play!\nAbout the last game you played:\n- date ${lastGame?.date.getDate()}/${lastGame?.date.getMonth() + 1}/${lastGame?.date.getFullYear()}\n- you played ${lastGame?.playerMove}, computer played ${lastGame?.computerMove}\n- the result was ${lastGame?.result}`,
+      `Let's play!\nAbout the last game you played:\n- date ${data.date.getDate()}/${data.date.getMonth() + 1}/${data.date.getFullYear()}\n- you played ${data.playerMove}, computer played ${data.computerMove}\n- the result was ${data.result}`,
     );
   }
 
@@ -97,18 +92,18 @@ export async function play(
   await prisma.game.update({
     where: { id: thisGame.id },
     data: {
-      result: gameResult.kind,
+      result: gameResult,
       open: false,
     },
   });
 
   rl.write(
     "The result is... " +
-      match(gameResult.kind)
+      match(gameResult)
         .returnType<string>()
-        .with(resultKinds.youWin, () => "You win!")
-        .with(resultKinds.draw, () => "It's a draw")
-        .with(resultKinds.youLose, () => "You lose...")
+        .with(results.youWin, () => "You win!")
+        .with(results.draw, () => "It's a draw")
+        .with(results.youLose, () => "You lose...")
         .exhaustive(),
   );
 }
