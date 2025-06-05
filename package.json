@@ -1,6 +1,14 @@
 {
   "devDependencies": {
+    "@ts-rest/core": "^3.52.1",
+    "@ts-rest/express": "^3.52.1",
+    "@types/body-parser": "^1.19.5",
+    "@types/cors": "^2.8.18",
+    "@types/express": "^5.0.2",
     "@types/node": "^22.15.21",
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
     "prettier": "^3.5.3",
     "prisma": "^6.8.2",
     "typescript": "^5.8.3",
