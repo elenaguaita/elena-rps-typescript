@@ -1,7 +1,7 @@
 import { describe, it, expect, test, afterEach, vi } from "vitest";
 import { calculateResult, generateRandomMove } from "../rps";
 import { moves, Move } from "../types/move";
-import { resultKinds, ResultKind } from "../types/result";
+import { Result, results } from "../types/result";
 import { ZodError } from "zod";
 
 describe("Move.safeParse(userInput)", () => {
@@ -52,22 +52,20 @@ describe("generateRandomMove", () => {
 });
 
 describe("calculateResult", () => {
-  test.each<[Move, Move, ResultKind]>([
-    [moves.rock, moves.scissors, resultKinds.youWin],
-    [moves.paper, moves.rock, resultKinds.youWin],
-    [moves.scissors, moves.paper, resultKinds.youWin],
-    [moves.scissors, moves.rock, resultKinds.youLose],
-    [moves.rock, moves.paper, resultKinds.youLose],
-    [moves.paper, moves.scissors, resultKinds.youLose],
-    [moves.rock, moves.rock, resultKinds.draw],
-    [moves.paper, moves.paper, resultKinds.draw],
-    [moves.scissors, moves.scissors, resultKinds.draw],
+  test.each<[Move, Move, Result]>([
+    [moves.rock, moves.scissors, results.youWin],
+    [moves.paper, moves.rock, results.youWin],
+    [moves.scissors, moves.paper, results.youWin],
+    [moves.scissors, moves.rock, results.youLose],
+    [moves.rock, moves.paper, results.youLose],
+    [moves.paper, moves.scissors, results.youLose],
+    [moves.rock, moves.rock, results.draw],
+    [moves.paper, moves.paper, results.draw],
+    [moves.scissors, moves.scissors, results.draw],
   ])(
     'if user plays %s and computer plays %s, should return "%s"',
     (userMove, computerMove, expected) => {
-      const result = calculateResult(userMove, computerMove);
-      expect(result.kind).toBe(expected);
-      expect(result.date).toBeInstanceOf(Date);
+      expect(calculateResult(userMove, computerMove)).toBe(expected);
     },
   );
 });
